@@ -30,7 +30,7 @@ If you would like to generate doxygen documentation you will need to install and
 
 ## Folder structure <a name="Folder-Structure"></a>
 
-The repository structure is now discussed. Most numerical functions are in netlib and nr directories. 
+The repository structure is now discussed. Most numerical functions are in the osnf directory. 
 
 There are also two extra *.f90 files: main.f90, which contains the main program; and adiabatic.f90, which contains a module with helper functions.
 
@@ -59,8 +59,7 @@ If you would like to output to a file, you can always redirect stdout to a file:
 ### Directory layout
 
     .                           
-    ├── netlib                  	# Some code from netlib     
-    ├── nr         					# numerical recipes
+    ├── osnf                  	# some open source functions
     ├── Makefile         			# the make file
     ├── adiabatic.f90         	# module of functions
     ├── main.f90			         	# main program
