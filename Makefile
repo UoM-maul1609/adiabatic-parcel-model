@@ -1,7 +1,7 @@
 OSNF_DIR = osnf
 
 .PHONY: osnf_code cleanall
-CLEANDIRS = $(OSNF_CODE) ./
+CLEANDIRS = $(OSNF_DIR) ./
 
 DEBUG=
 FOR = gfortran -c  #-fno-underscoring 
@@ -19,7 +19,7 @@ FFLAGS2 =  $(OPT) $(DEBUG) -o # use with gfortran - need to use 32 bit memory mo
 
 adiabatic.exe	:  adiabatic_lib.a  adiabatic.$(OBJ) main.$(OBJ) osnf_code
 	$(FOR2) $(FFLAGS2)adiabatic.exe adiabatic.$(OBJ) main.$(OBJ) \
-	 -lm adiabatic_lib.a 
+	 -lm adiabatic_lib.a -L$(OSNF_DIR) 
 
 adiabatic_lib.a	:   osnf_code
 
@@ -34,9 +34,9 @@ adiabatic_lib.a	:   osnf_code
                 $(OSNF_DIR)/hygfx.$(OBJ) $(OSNF_DIR)/random.$(OBJ)			
 
 adiabatic.$(OBJ)   : adiabatic.f90 osnf_code
-	$(FOR) -cpp adiabatic.f90 $(FFLAGS)adiabatic.$(OBJ) 
+	$(FOR) -cpp adiabatic.f90 -I$(OSNF_DIR) $(FFLAGS)adiabatic.$(OBJ) 
 main.$(OBJ)   : main.f90 adiabatic.$(OBJ) osnf_code
-	$(FOR) -cpp main.f90 $(FFLAGS)main.$(OBJ) 
+	$(FOR) -cpp main.f90 -I$(OSNF_DIR) $(FFLAGS)main.$(OBJ) 
 	
 osnf_code:
 	$(MAKE) -C $(OSNF_DIR)
