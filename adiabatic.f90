@@ -95,7 +95,7 @@
         !> used to find pressure along adiabat
         subroutine hydrostatic2a(z,p,dpdz)
             use numerics_type
-            use numerics, only : fmin
+            use numerics, only : zeroin
             implicit none
             real(wp), intent(in) :: z
             real(wp), dimension(:), intent(in) :: p
@@ -106,7 +106,7 @@
             ! estimate the temperature using dry adiabat
             t=theta_surf*(p111/1.e5_wp)**(ra/cp)
             if(p(1)<plcl1) then
-                t=fmin(t,t1old*1.01_wp,calc_theta_q,1.e-5_wp)
+                t=zeroin(t,t1old*1.01_wp,calc_theta_q,1.e-5_wp)
             endif
             ! find the temperature by iteration
             dpdz(1)=-(grav*p(1))/(ra*t)

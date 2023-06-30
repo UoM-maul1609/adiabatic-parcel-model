@@ -19,7 +19,7 @@
 	program adiabatic
         use numerics_type
         use adiabatic_vars
-        use numerics, only : fmin, vode_integrate
+        use numerics, only : zeroin, vode_integrate
         implicit none
         real(wp) :: t,t1,p,dp1,theta,tinit,pinit,pfinal, &
                  rhinit,ws,theta_q_sat,almr=0._wp,z,dz,plcl,tlcl,ndrop, eps2,hmin,htry
@@ -86,7 +86,7 @@
         theta111=theta
         w111=rhinit*eps*svp_liq(tinit)/(pinit-svp_liq(tinit))
         ! find LCL
-        plcl=fmin(pfinal,pinit,find_lcl,1.e-5_wp)
+        plcl=zeroin(pfinal,pinit,find_lcl,1.e-5_wp)
         plcl1=plcl
         tlcl=theta*(plcl/100000._wp)**(ra/cp)
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -147,7 +147,7 @@
               t1=t
               almr=0._wp
             else
-              t1=fmin(t,t1old*1.01_wp,calc_theta_q,1.e-5_wp)
+              t1=zeroin(t,t1old*1.01_wp,calc_theta_q,1.e-5_wp)
               almr=eps*svp_liq(tlcl)/(plcl-svp_liq(tlcl))-eps*svp_liq(t1)/(p-svp_liq(t1))
             endif
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
