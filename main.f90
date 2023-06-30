@@ -17,23 +17,23 @@
 	!>@brief
     !>main programme reads command line arguments and prints to stout
 	program adiabatic
-        use nrtype
+        use numerics_type
         use adiabatic_vars
-        use nr, only : zbrent, odeint, rkqs
+        use numerics, only : fmin, vode_integrate
         implicit none
-        real(sp) :: t,t1,p,dp1,theta,tinit,pinit,pfinal, &
-                 rhinit,ws,theta_q_sat,almr=0._sp,z,dz,plcl,tlcl,ndrop, eps2,hmin,htry
-        real(sp), dimension(1) :: p11
+        real(wp) :: t,t1,p,dp1,theta,tinit,pinit,pfinal, &
+                 rhinit,ws,theta_q_sat,almr=0._wp,z,dz,plcl,tlcl,ndrop, eps2,hmin,htry
+        real(wp), dimension(1) :: p11
         character (len=100) :: readstr = ' '
 
         ! initial conditions
 !         tinit=293.15
-!         pinit=100000._sp
-!         pfinal=10000._sp
-!         rhinit=1._sp
-!         rhinit=min(rhinit,1._sp)
-!         z=0._sp
-!         dz=500._sp
+!         pinit=100000._wp
+!         pfinal=10000._wp
+!         rhinit=1._wp
+!         rhinit=min(rhinit,1._wp)
+!         z=0._wp
+!         dz=500._wp
 !         
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! read from command line                                                         !
@@ -80,22 +80,22 @@
         ! find lcl                                                                       !
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! dry potential temperature
-        theta=t*(100000._sp/p)**(ra/cp)
+        theta=t*(100000._wp/p)**(ra/cp)
         theta_surf=theta
         ! find the pressure at which rh=1.0
         theta111=theta
         w111=rhinit*eps*svp_liq(tinit)/(pinit-svp_liq(tinit))
         ! find LCL
-        plcl=zbrent(find_lcl,pfinal,pinit,1.e-5_sp)
+        plcl=fmin(pfinal,pinit,find_lcl,1.e-5_wp)
         plcl1=plcl
-        tlcl=theta*(plcl/100000._sp)**(ra/cp)
+        tlcl=theta*(plcl/100000._wp)**(ra/cp)
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! find moist potential temp                                                      !
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        theta_q_sat=tlcl*(100000._sp/plcl)**(ra/cp)*dexp(lv*w111/cp/tlcl)
+        theta_q_sat=tlcl*(100000._wp/plcl)**(ra/cp)*dexp(lv*w111/cp/tlcl)
         theta_q_sat111=theta_q_sat
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -109,7 +109,7 @@
         write(*,*) '<table border="1">'
         write(*,"(a20,a20,a20,a20,a20,a20)") '<td>tdry (k)','<td>tmoist (k)','<td>pressure (pa)', &
           '<td>z (m)','<td>lwmr (kg kg-1)','<td>d (um)'
-        print *,t,t1,p, z, almr,(6._sp*(almr/ndrop)/pi/1000._sp)**(1._sp/3._sp)*1.e6_sp
+        print *,t,t1,p, z, almr,(6._wp*(almr/ndrop)/pi/1000._wp)**(1._wp/3._wp)*1.e6_wp
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
         
@@ -125,11 +125,11 @@
             ! solve for pressure (conserving either dry or moist potential temperature)  !
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             htry=dz
-            eps2=1.e-8_sp
-            hmin=1.e-2_sp
+            eps2=1.e-8_wp
+            hmin=1.e-2_wp
             p11(1)=p
             t1old=t
-            call odeint(p11,z,z+dz,eps2,htry,hmin,hydrostatic2a,rkqs)
+            call vode_integrate(p11,z,z+dz,eps2,htry,hmin,hydrostatic2a)
             p=p11(1)
             p111=p
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -140,14 +140,14 @@
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ! calculate temperature and lwmr                                             !
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            t=theta*(p/100000._sp)**(ra/cp)
+            t=theta*(p/100000._wp)**(ra/cp)
             ! find the temperature where theta_q_sat is conserved
             t1old=t1
             if(p.gt.plcl) then
               t1=t
-              almr=0._sp
+              almr=0._wp
             else
-              t1=zbrent(calc_theta_q,t,t1old*1.01_sp,1.e-5_sp)
+              t1=fmin(t,t1old*1.01_wp,calc_theta_q,1.e-5_wp)
               almr=eps*svp_liq(tlcl)/(plcl-svp_liq(tlcl))-eps*svp_liq(t1)/(p-svp_liq(t1))
             endif
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -156,7 +156,7 @@
 
 
             z=z+dz
-            print *,t,t1,p, z, almr,(6._sp*(almr/ndrop)/pi/1000._sp)**(1._sp/3._sp)*1.e6_sp
+            print *,t,t1,p, z, almr,(6._wp*(almr/ndrop)/pi/1000._wp)**(1._wp/3._wp)*1.e6_wp
    
             t=t1
         end do
